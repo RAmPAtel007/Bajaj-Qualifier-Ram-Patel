@@ -1,4 +1,13 @@
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+// Resolution order: explicit env var > localhost during local dev > production Render URL.
+const PROD_API = 'https://bajaj-qualifier-ram-patel.onrender.com';
+const BASE = (() => {
+  const envVal = import.meta.env.VITE_API_URL;
+  if (envVal) return envVal.replace(/\/$/, '');
+  if (typeof window !== 'undefined' && /^(localhost|127\.)/.test(window.location.hostname)) {
+    return 'http://localhost:4000';
+  }
+  return PROD_API;
+})();
 
 async function request(path, opts = {}) {
   const res = await fetch(`${BASE}${path}`, {
